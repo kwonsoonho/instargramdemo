@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:instargramdemo/screen/scr_account.dart';
+import 'package:instargramdemo/screen/scr_home.dart';
+import 'package:instargramdemo/screen/scr_search.dart';
 
 class TabPage extends StatefulWidget {
   @override
@@ -9,9 +12,9 @@ class _TabPageState extends State<TabPage> {
   int _selectedIndex = 0;
 
   List _pages = [
-    Text('page1'),
-    Text('page2'),
-    Text('page3'),
+    HomePage(),
+    SearchPage(),
+    AccountPage(),
   ];
 
   @override
@@ -19,6 +22,7 @@ class _TabPageState extends State<TabPage> {
     return Scaffold(
       body: Center(child: _pages[_selectedIndex],),
       bottomNavigationBar: BottomNavigationBar(
+        fixedColor: Colors.black,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: [
