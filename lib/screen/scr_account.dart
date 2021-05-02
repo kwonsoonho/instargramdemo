@@ -1,13 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AccountPage extends StatefulWidget {
+  final User user;
+
+  AccountPage(this.user);
+
   @override
   _AccountPageState createState() => _AccountPageState();
 }
 
 class _AccountPageState extends State<AccountPage> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  int _postCount = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Firestore.instance
+        .collection('post')
+        .where('email', isEqualTo: widget.user.email)
+        .getDocuments()
+        .then((snapShot) {
+          setState(() {
+            _postCount = snapShot.documents.length;
+          });
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,9 +43,16 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Widget _buildAppBar() {
+  _buildAppBar() {
     return AppBar(
-      actions: [IconButton(icon: Icon(Icons.exit_to_app), onPressed: () {})],
+      actions: [
+        IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              _googleSignIn.signOut();
+            })
+      ],
     );
   }
 
@@ -37,8 +71,7 @@ class _AccountPageState extends State<AccountPage> {
                     width: 80.0,
                     height: 80.0,
                     child: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          'https://search.pstatic.net/common?type=a&size=120x150&quality=95&direct=true&src=http%3A%2F%2Fsstatic.naver.net%2Fpeople%2Fportrait%2F202103%2F20210324142444281.jpg'),
+                      backgroundImage: NetworkImage(widget.user.photoUrl),
                     ),
                   ),
                   Container(
@@ -54,7 +87,7 @@ class _AccountPageState extends State<AccountPage> {
                           child: FloatingActionButton(
                             // child: Icon(Icons.add),
                             backgroundColor: Colors.white,
-                            onPressed: (){},
+                            onPressed: () {},
                           ),
                         ),
                         SizedBox(
@@ -63,7 +96,7 @@ class _AccountPageState extends State<AccountPage> {
                           child: FloatingActionButton(
                             child: Icon(Icons.add),
                             backgroundColor: Colors.blue,
-                            onPressed: (){},
+                            onPressed: () {},
                           ),
                         ),
                       ],
@@ -73,13 +106,13 @@ class _AccountPageState extends State<AccountPage> {
               ),
               Padding(padding: EdgeInsets.all(8.0)),
               Text(
-                '이름',
+                widget.user.displayName,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
               )
             ],
           ),
           Text(
-            '0\n게시물',
+            '$_postCount\n게시물',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18.0),
           ),
